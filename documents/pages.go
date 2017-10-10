@@ -14,10 +14,11 @@ type Page struct {
 	Url         string        `bson:"url"`
 	Domain      string        `bson:"domain"`
 	Title       string        `bson:"title"`
-	Keyword     string        `bson:"keyword"`
-	Description string        `bson:"description"`
-	Content     string        `bson:"content"`
-	CreatedAt   time.Time     `bson:"created_at"`
+	Keyword     string        `bson:"keyword,omitempty" json:"keyword,omitempty"`
+	Description string        `bson:"description,omitempty" json:"description,omitempty"`
+	Content     string        `bson:"content" json:"content,omitempty"`
+	Rank        uint64        `bson:"rank" json:"rank,omitempty"`
+	CreatedAt   time.Time     `bson:"created_at" json:"created_at"`
 }
 
 func init() {

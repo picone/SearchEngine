@@ -2,12 +2,11 @@ package spider
 
 import (
 	"io/ioutil"
-	"log"
 	"net/http"
 )
 
 const (
-	JOB_CHANNAL_NUMBER    = 64
+	JOB_CHANNAL_NUMBER    = 5
 	FETCH_THREAD_NUMBER   = 32
 	RESULT_CHANNAL_NUMBER = 1024
 )
@@ -28,7 +27,6 @@ func newDownloader() *downloader {
 
 func (downloader *downloader) AddUrl(url string) {
 	jobUrls <- url
-	log.Println("增加任务:", url)
 }
 
 func (downloader *downloader) Start() {

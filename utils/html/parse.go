@@ -3,7 +3,6 @@ package html
 import (
 	"regexp"
 	"strings"
-	"log"
 )
 
 var titleExp, metaExp *regexp.Regexp
@@ -30,6 +29,5 @@ func ParseMeta(page string) map[string]string {
 			result[strings.ToLower(match[1])] = match[2]
 		}
 	}
-	log.Println(result)
 	return result
 }

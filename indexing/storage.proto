@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package indexing;
+
+message IndexStorage {
+    message record{
+        string key = 1;
+        repeated string value = 2;
+    }
+    repeated record records = 1;
+}
