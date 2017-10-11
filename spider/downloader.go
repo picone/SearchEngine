@@ -2,51 +2,85 @@ package spider
 
 import (
 	"io/ioutil"
+	"log"
 	"net/http"
+	"os"
+	"sync/atomic"
+	"time"
+	"bufio"
+	"io"
 )
 
 const (
 	JOB_CHANNAL_NUMBER    = 5
 	FETCH_THREAD_NUMBER   = 32
 	RESULT_CHANNAL_NUMBER = 1024
-)
-
-var (
-	jobUrls = make(chan string, JOB_CHANNAL_NUMBER)
+	JOB_SAVE_PATH = "./data/jobs.txt"
 )
 
 type downloader struct {
-	Output chan *Page
+	Output    chan *Page
+	jobUrls   chan string
+	isRunning int32
 }
 
 func newDownloader() *downloader {
-	obj := downloader{}
-	obj.Output = make(chan *Page, RESULT_CHANNAL_NUMBER)
+	obj := downloader{
+		Output:    make(chan *Page, RESULT_CHANNAL_NUMBER),
+		jobUrls:   make(chan string, JOB_CHANNAL_NUMBER),
+		isRunning: 0,
+	}
 	return &obj
 }
 
 func (downloader *downloader) AddUrl(url string) {
-	jobUrls <- url
+	downloader.jobUrls <- url
 }
 
 func (downloader *downloader) Start() {
+	downloader.isRunning = 1
 	for i := 0; i < FETCH_THREAD_NUMBER; i++ {
 		go downloader.watchJobs()
 	}
+	//载入历史数据
+	go func(){
+		if f, err := os.Open(JOB_SAVE_PATH); err == nil {
+			defer f.Close()
+			buffer := bufio.NewReader(f)
+			for {
+				line, _, c := buffer.ReadLine()
+				if c == io.EOF {
+					break
+				}
+				if l := string(line); l != "" {
+					downloader.AddUrl(l)
+				}
+			}
+		}
+	}()
 }
 
-func (downloader *downloader) Stop() {
-	//TODO 停止spider
-
+func (downloader *downloader) Stop() bool {
+	if atomic.LoadInt32(&downloader.isRunning) == 1 {
+		atomic.StoreInt32(&downloader.isRunning, 0)
+		log.Println("等待爬重器完成任务")
+		downloader.saveJobs(JOB_SAVE_PATH)
+		return true
+	} else {
+		return false
+	}
 }
 
 func (downloader *downloader) watchJobs() {
-	for url := range jobUrls {
+	for url := range downloader.jobUrls {
 		if content, err := downloader.fetchContent(url); err == nil {
 			downloader.Output <- &Page{
 				Url:     url,
 				Content: content,
 			}
+		}
+		if atomic.LoadInt32(&downloader.isRunning) == 0 {
+			break
 		}
 	}
 }
@@ -57,7 +91,9 @@ func (downloader *downloader) fetchContent(url string) (string, error) {
 		return "<nil>", err
 	}
 	request.Header.Set("User-Agent", "Mozilla/5.0 (iPhone, U, CPU iPhone OS 4_3_3 like Mac OS X, en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8J2 Safari/6533.18.5")
-	response, err := http.DefaultClient.Do(request)
+	client := http.DefaultClient
+	client.Timeout = time.Second * 30
+	response, err := client.Do(request)
 	if err != nil {
 		return "<nil>", err
 	}
@@ -79,5 +115,23 @@ func (downloader *downloader) Consume(callback func(*Page)) {
 func (downloader *downloader) consumeContent(callback func(*Page)) {
 	for content := range downloader.Output {
 		go callback(content)
+	}
+}
+
+func (downloader *downloader) saveJobs(filename string) {
+	timer := time.NewTimer(time.Second * 60)
+	defer timer.Stop()
+	if f, err := os.Create(filename); err == nil {
+		defer f.Close()
+		LOOP:
+		for {
+			select {
+			case url := <- downloader.jobUrls:
+				f.WriteString(url)
+				f.WriteString("\n")
+			case <- timer.C:
+				break LOOP
+			}
+		}
 	}
 }

@@ -40,8 +40,7 @@ func Search(c *gin.Context) {
 			})
 		}
 	}
-	end := time.Now()
-	latency := end.Sub(start)
+	latency := time.Until(start)
 	c.JSON(http.StatusOK, gin.H{
 		"data": pages,
 		"cost": latency.Nanoseconds(),

@@ -17,7 +17,7 @@ func init() {
 }
 
 func StartSpider() {
-	//go signalHandler()//捕捉停止信号
+	go signalHandler()//捕捉停止信号
 	producer.Start()
 	producer.Consume(costumer.Watch)
 	//TODO 从这里爬起
@@ -26,7 +26,6 @@ func StartSpider() {
 
 func StopSpider() {
 	producer.Stop()
-
 }
 
 func signalHandler() {
@@ -35,8 +34,8 @@ func signalHandler() {
 	for {
 		msg := <-sign
 		if msg == syscall.SIGINT {
-			//TODO 停止爬虫
 			StopSpider()
+			os.Exit(0)
 		}
 	}
 }
