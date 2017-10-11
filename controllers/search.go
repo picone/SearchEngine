@@ -1,14 +1,14 @@
 package controllers
 
 import (
+	"ChienHo/SearchEngine/documents"
 	"ChienHo/SearchEngine/indexing"
 	mSegment "ChienHo/SearchEngine/utils/segment"
 	"github.com/gin-gonic/gin"
 	"github.com/huichen/sego"
 	"gopkg.in/mgo.v2/bson"
-	"time"
 	"net/http"
-	"ChienHo/SearchEngine/documents"
+	"time"
 )
 
 func Search(c *gin.Context) {
@@ -24,7 +24,7 @@ func Search(c *gin.Context) {
 		}
 	}
 	pages := []documents.Page{}
-	if len(ids) == 0 {//搜索引擎没找到结果
+	if len(ids) == 0 { //搜索引擎没找到结果
 
 	} else {
 		idSlice := make([]bson.ObjectId, len(ids))
@@ -36,7 +36,7 @@ func Search(c *gin.Context) {
 		if err := documents.PageCollection.Find(bson.M{"_id": bson.M{"$in": idSlice}}).Select(bson.M{"url": 1, "domain": 1, "title": 1, "description": 1, "created_at": 1}).All(&pages); err != nil {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 				"message": "服务器错误",
-				"error": err.Error(),
+				"error":   err.Error(),
 			})
 		}
 	}
@@ -48,5 +48,15 @@ func Search(c *gin.Context) {
 }
 
 func SearchDetail(c *gin.Context) {
-
+	id := bson.ObjectIdHex(c.Param("id"))
+	page := documents.Page{}
+	if err := documents.PageCollection.FindId(id).One(&page); err == nil {
+		c.JSON(http.StatusOK, gin.H{
+			"data": page,
+		})
+	} else {
+		c.JSON(http.StatusNotFound, gin.H{
+			"message": "页面不存在",
+		})
+	}
 }

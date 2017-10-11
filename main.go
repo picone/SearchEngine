@@ -14,6 +14,7 @@ func main() {
 func startWeb() {
 	r := gin.Default()
 	r.GET("/search/:word", controllers.Search)
+	r.GET("/search/detail/:id", controllers.SearchDetail)
 	r.Run("127.0.0.1:8080")
 }
 
