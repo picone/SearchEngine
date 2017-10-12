@@ -2,14 +2,14 @@ package spider
 
 import (
 	"ChienHo/SearchEngine/documents"
-	"ChienHo/SearchEngine/indexing"
 	"ChienHo/SearchEngine/utils/html"
 	mSegment "ChienHo/SearchEngine/utils/segment"
 	"github.com/huichen/sego"
-	"gopkg.in/mgo.v2/bson"
-	"time"
-	"log"
 	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
+	"log"
+	"time"
+	"strings"
 )
 
 type analysis struct {
@@ -38,7 +38,7 @@ func (analysis *analysis) Watch(page *Page) {
 		switch err.(type) {
 		case *mgo.LastError:
 			if err.(*mgo.LastError).Code == 11000 {
-				return//已插入过,不用再索引
+				return //已插入过,不用再索引
 			}
 		}
 	}
@@ -56,6 +56,23 @@ func (analysis *analysis) Watch(page *Page) {
 	//倒排索引,先分词
 	segments := sego.SegmentsToSlice(mSegment.GetSegmenter().Segment([]byte(page.Content)), true)
 	for _, segment := range segments {
-		indexing.Add(segment, p.Id)
+		segment = strings.Trim(segment, " ")
+		if segment == "" {//跳过空串
+			continue
+		}
+		i := documents.Indexing{
+			Keyword: segment,
+		}
+		i.Add(p.Id)
+	}
+	for _, keyword := range strings.Split(p.Keyword, ",") {
+		keyword = strings.Trim(keyword, " ")
+		if keyword == "" {//跳过空串
+			continue
+		}
+		i := documents.Indexing{
+			Keyword: keyword,
+		}
+		i.Add(p.Id)
 	}
 }
