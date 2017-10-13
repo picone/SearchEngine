@@ -20,8 +20,6 @@ func StartSpider() {
 	go signalHandler()//捕捉停止信号
 	producer.Start()
 	producer.Consume(costumer.Watch)
-	//TODO 从这里爬起
-	producer.AddUrl("https://m.sohu.com/")
 }
 
 func StopSpider() {

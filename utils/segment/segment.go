@@ -7,7 +7,7 @@ import (
 var segmenter sego.Segmenter
 
 func init() {
-	segmenter.LoadDictionary("./data/dictionary.txt")
+	segmenter.LoadDictionary("/Users/ChienHo/go/src/ChienHo/SearchEngine/data/dictionary.txt")
 }
 
 func GetSegmenter() *sego.Segmenter {

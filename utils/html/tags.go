@@ -5,7 +5,7 @@ import (
 )
 
 var (
-	tagExp, styleExp, scriptExp, spaceExp, hrefExp *regexp.Regexp
+	tagExp, styleExp, scriptExp, spaceExp, hrefExp, specialTagExp *regexp.Regexp
 )
 
 func init() {
@@ -14,12 +14,14 @@ func init() {
 	scriptExp = regexp.MustCompile("(?)<script[\\S\\s]+?</script>")
 	spaceExp = regexp.MustCompile("\\s{2,}")
 	hrefExp = regexp.MustCompile("(?i)<a[\\S\\s]href=\"(http.+?)\"")
+	specialTagExp = regexp.MustCompile("\\\\[rntfv]")
 }
 
 func RemoveHTMLTags(content string) string {
 	result := styleExp.ReplaceAllString(content, "")
 	result = scriptExp.ReplaceAllString(result, "")
 	result = tagExp.ReplaceAllString(result, "")
+	result = specialTagExp.ReplaceAllString(result, " ")
 	return spaceExp.ReplaceAllString(result, "")
 }
 

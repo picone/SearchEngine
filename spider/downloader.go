@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	JOB_CHANNAL_NUMBER    = 5
+	JOB_CHANNAL_NUMBER    = 2048
 	FETCH_THREAD_NUMBER   = 32
 	RESULT_CHANNAL_NUMBER = 1024
 	JOB_SAVE_PATH = "./data/jobs.txt"
@@ -56,6 +56,8 @@ func (downloader *downloader) Start() {
 					downloader.AddUrl(l)
 				}
 			}
+		} else {
+			downloader.AddUrl("https://m.sohu.com/")
 		}
 	}()
 }

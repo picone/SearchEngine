@@ -4,6 +4,7 @@ import (
 	"ChienHo/SearchEngine/documents"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/mgo.v2/bson"
+	"html/template"
 	"net/http"
 	"time"
 )
@@ -32,12 +33,10 @@ func SearchDetail(c *gin.Context) {
 	id := bson.ObjectIdHex(c.Param("id"))
 	page := documents.Page{}
 	if err := documents.PageCollection.FindId(id).One(&page); err == nil {
-		c.JSON(http.StatusOK, gin.H{
-			"data": page,
+		c.HTML(http.StatusOK, "search-detail.tmpl", gin.H{
+			"content": template.HTML(page.Content),
 		})
 	} else {
-		c.JSON(http.StatusNotFound, gin.H{
-			"message": "页面不存在",
-		})
+		c.AbortWithStatus(http.StatusNotFound)
 	}
 }

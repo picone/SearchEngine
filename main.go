@@ -14,6 +14,7 @@ func main() {
 
 func startWeb() {
 	r := gin.Default()
+	r.LoadHTMLGlob("./templates/*")
 	r.GET("/search/:word", middlewares.GetPagination(), controllers.Search)
 	r.GET("/search-detail/:id", controllers.SearchDetail)
 	r.Static("/assets", "./assets")
