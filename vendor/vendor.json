@@ -9,6 +9,12 @@
 			"revisionTime": "2017-08-05T03:47:17Z"
 		},
 		{
+			"checksumSHA1": "fAz62j7vR7Q1DPMQRY/jHDjmEMc=",
+			"path": "github.com/axgle/mahonia",
+			"revision": "0c44128a83abf861873f8f4ec81fe58ff1cf6ea4",
+			"revisionTime": "2017-08-26T12:16:38Z"
+		},
+		{
 			"checksumSHA1": "QeKwBtN2df+j+4stw3bQJ6yO4EY=",
 			"path": "github.com/gin-contrib/sse",
 			"revision": "22d885f9ecc78bf4ee5d72b937e4bbcdc58e8cae",

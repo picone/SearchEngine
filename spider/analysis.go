@@ -8,8 +8,9 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"log"
-	"time"
 	"strings"
+	"time"
+	"github.com/axgle/mahonia"
 )
 
 type analysis struct {
@@ -22,6 +23,12 @@ func newAnalysis() *analysis {
 
 func (analysis *analysis) Watch(page *Page) {
 	log.Println("分析连接:", page.Url)
+	//分析字符集
+	if charset, ok := html.ParseCharset(page.Content); ok && charset != "utf-8" {
+		if dec := mahonia.NewDecoder(charset); dec != nil {
+			page.Content = dec.ConvertString(page.Content)
+		}
+	}
 	meta := html.ParseMeta(page.Content)
 	p := documents.Page{
 		Id:          bson.NewObjectId(),
@@ -57,7 +64,7 @@ func (analysis *analysis) Watch(page *Page) {
 	segments := sego.SegmentsToSlice(mSegment.GetSegmenter().Segment([]byte(page.Content)), true)
 	for _, segment := range segments {
 		segment = strings.Trim(segment, " ")
-		if segment == "" {//跳过空串
+		if segment == "" { //跳过空串
 			continue
 		}
 		i := documents.Indexing{
@@ -67,7 +74,7 @@ func (analysis *analysis) Watch(page *Page) {
 	}
 	for _, keyword := range strings.Split(p.Keyword, ",") {
 		keyword = strings.Trim(keyword, " ")
-		if keyword == "" {//跳过空串
+		if keyword == "" { //跳过空串
 			continue
 		}
 		i := documents.Indexing{

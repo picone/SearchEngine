@@ -5,11 +5,12 @@ import (
 	"strings"
 )
 
-var titleExp, metaExp *regexp.Regexp
+var titleExp, metaExp, charsetExp *regexp.Regexp
 
 func init() {
 	titleExp = regexp.MustCompile("(?i)<title>([\\w\\W]+)</title>")
 	metaExp = regexp.MustCompile("(?i)<meta[\\s\\S]name=\"([\\w\\W]+?)\"[\\s\\S]content=\"([\\w\\W]+?)\"")
+	charsetExp = regexp.MustCompile("(?i)charset=[\"]?([\\w\\-]+)[\";]")
 }
 
 func ParseTitle(page string) string {
@@ -30,4 +31,13 @@ func ParseMeta(page string) map[string]string {
 		}
 	}
 	return result
+}
+
+func ParseCharset(page string) (string, bool) {
+	result := charsetExp.FindStringSubmatch(page)
+	if len(result) == 0 {
+		return "<nil>", false
+	} else {
+		return strings.ToLower(result[1]), true
+	}
 }
