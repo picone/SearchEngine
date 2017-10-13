@@ -13,7 +13,7 @@ func Search(c *gin.Context) {
 	start := time.Now()
 	pages := []documents.Page{}
 	if indexes, ok := documents.IndexingFind(word); ok {
-		if err := documents.PageCollection.Find(bson.M{"_id": bson.M{"$in": indexes}}).Select(bson.M{"url": 1, "domain": 1, "title": 1, "description": 1, "created_at": 1}).Sort("rank:-").All(&pages); err != nil {
+		if err := documents.PageCollection.Find(bson.M{"_id": bson.M{"$in": indexes}}).Select(bson.M{"url": 1, "domain": 1, "title": 1, "description": 1, "created_at": 1}).Sort("rank:-").Limit(c.MustGet("page_size").(int)).Skip(c.MustGet("page_skip").(int)).All(&pages); err != nil {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 				"message": "服务器错误",
 				"error":   err.Error(),

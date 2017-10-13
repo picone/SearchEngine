@@ -10,10 +10,10 @@ import (
 var PageCollection *mgo.Collection
 
 type Page struct {
-	Id          bson.ObjectId `bson:"_id"`
-	Url         string        `bson:"url"`
-	Domain      string        `bson:"domain"`
-	Title       string        `bson:"title"`
+	Id          bson.ObjectId `bson:"_id" json:"id"`
+	Url         string        `bson:"url" json:"url"`
+	Domain      string        `bson:"domain" json:"domain"`
+	Title       string        `bson:"title" json:"title"`
 	Keyword     string        `bson:"keyword,omitempty" json:"keyword,omitempty"`
 	Description string        `bson:"description,omitempty" json:"description,omitempty"`
 	Content     string        `bson:"content" json:"content,omitempty"`

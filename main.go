@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	startSpider()
+	//startSpider()
 	startWeb()
 }
 

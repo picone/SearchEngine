@@ -8,7 +8,6 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"sync"
 	"time"
-	"log"
 )
 
 var (
@@ -20,7 +19,6 @@ type Indexing struct {
 	Id          bson.ObjectId `bson:"_id" json:"id"`
 	Keyword     string        `bson:"keyword" json:"keyword,omitempty"`
 	Pages       []mgo.DBRef   `bson:"pages" json:"pages,omitempty"`
-	SearchTimes uint64        `bson:"search_times" json:"search_times,omitempty"`
 	CreatedAt   time.Time     `bson:"created_at" json:"created_at"`
 	UpdatedAt   time.Time     `bson:"updated_at" json:"updated_at"`
 }

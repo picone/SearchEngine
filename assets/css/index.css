@@ -2,3 +2,13 @@
     width: 100%;
     padding: 10px 0 20px
 }
+#search-result {
+    padding-top: 20px;
+}
+#search-result .card-body {
+    font-size: 16px;
+    text-indent: 2em;
+}
+#search-result .card-footer {
+    color: #8A8590;
+}
