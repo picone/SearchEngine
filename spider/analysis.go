@@ -1,7 +1,7 @@
 package spider
 
 import (
-	"documents"
+	"github.com/picone/SearchEngine/documents"
 	"github.com/axgle/mahonia"
 	"github.com/huichen/sego"
 	"gopkg.in/mgo.v2"
@@ -9,8 +9,8 @@ import (
 	"log"
 	"strings"
 	"time"
-	"utils/html"
-	mSegment "utils/segment"
+	"github.com/picone/SearchEngine/utils/html"
+	mSegment "github.com/picone/SearchEngine/utils/segment"
 )
 
 type analysis struct {

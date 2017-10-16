@@ -4,7 +4,7 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"time"
-	"utils/mongo"
+	"github.com/picone/SearchEngine/utils/mongo"
 )
 
 var PageCollection *mgo.Collection

@@ -1,10 +1,10 @@
 package main
 
 import (
-	"controllers"
+	"github.com/picone/SearchEngine/controllers"
 	"github.com/gin-gonic/gin"
-	"middlewares"
-	"spider"
+	"github.com/picone/SearchEngine/middlewares"
+	"github.com/picone/SearchEngine/spider"
 )
 
 func main() {

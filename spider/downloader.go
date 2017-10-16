@@ -1,7 +1,7 @@
 package spider
 
 import (
-	"utils/redigo"
+	"github.com/picone/SearchEngine/utils/redigo"
 	"errors"
 	"github.com/garyburd/redigo/redis"
 	"io/ioutil"

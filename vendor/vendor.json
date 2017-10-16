@@ -81,10 +81,6 @@
 			"revisionTime": "2017-09-18T22:25:52Z"
 		},
 		{
-			"path": "golang.org/x/sys/unix",
-			"revision": ""
-		},
-		{
 			"checksumSHA1": "P/k5ZGf0lEBgpKgkwy++F7K1PSg=",
 			"path": "gopkg.in/go-playground/validator.v8",
 			"revision": "5f1438d3fca68893a817e4a66806cea46a9e4ebf",
@@ -127,5 +123,5 @@
 			"revisionTime": "2017-08-12T16:00:11Z"
 		}
 	],
-	"rootPath": "/Users/ChienHo/Programs/SearchEngine/src"
+	"rootPath": "github.com/picone/SearchEngine"
 }

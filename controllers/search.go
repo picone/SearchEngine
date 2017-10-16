@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"documents"
+	"github.com/picone/SearchEngine/documents"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/mgo.v2/bson"
 	"html/template"

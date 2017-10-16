@@ -6,8 +6,8 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"sync"
 	"time"
-	"utils/mongo"
-	mSegment "utils/segment"
+	"github.com/picone/SearchEngine/utils/mongo"
+	mSegment "github.com/picone/SearchEngine/utils/segment"
 )
 
 var (
