@@ -1,16 +1,16 @@
 package spider
 
 import (
-	"ChienHo/SearchEngine/documents"
-	"ChienHo/SearchEngine/utils/html"
-	mSegment "ChienHo/SearchEngine/utils/segment"
+	"documents"
+	"github.com/axgle/mahonia"
 	"github.com/huichen/sego"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"log"
 	"strings"
 	"time"
-	"github.com/axgle/mahonia"
+	"utils/html"
+	mSegment "utils/segment"
 )
 
 type analysis struct {

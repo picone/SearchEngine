@@ -1,13 +1,13 @@
 package documents
 
 import (
-	"ChienHo/SearchEngine/utils/mongo"
-	mSegment "ChienHo/SearchEngine/utils/segment"
 	"github.com/huichen/sego"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"sync"
 	"time"
+	"utils/mongo"
+	mSegment "utils/segment"
 )
 
 var (

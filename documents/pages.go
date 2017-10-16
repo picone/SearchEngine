@@ -1,10 +1,10 @@
 package documents
 
 import (
-	"ChienHo/SearchEngine/utils/mongo"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"time"
+	"utils/mongo"
 )
 
 var PageCollection *mgo.Collection

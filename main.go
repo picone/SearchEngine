@@ -1,10 +1,10 @@
 package main
 
 import (
-	"ChienHo/SearchEngine/controllers"
-	"ChienHo/SearchEngine/spider"
+	"controllers"
 	"github.com/gin-gonic/gin"
-	"ChienHo/SearchEngine/middlewares"
+	"middlewares"
+	"spider"
 )
 
 func main() {
