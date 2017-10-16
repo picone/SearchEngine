@@ -67,19 +67,13 @@ func (analysis *analysis) Watch(page *Page) {
 		if segment == "" { //跳过空串
 			continue
 		}
-		i := documents.Indexing{
-			Keyword: segment,
-		}
-		i.Add(p.Id)
+		documents.IndexingAdd(segment, p.Id)
 	}
 	for _, keyword := range strings.Split(p.Keyword, ",") {
 		keyword = strings.Trim(keyword, " ")
 		if keyword == "" { //跳过空串
 			continue
 		}
-		i := documents.Indexing{
-			Keyword: keyword,
-		}
-		i.Add(p.Id)
+		documents.IndexingAdd(keyword, p.Id)
 	}
 }

@@ -12,15 +12,15 @@ import (
 
 var (
 	IndexingCollection *mgo.Collection
-	addCollectionLock  sync.Mutex
+	addCollectionLock  = sync.Mutex{}
 )
 
 type Indexing struct {
-	Id          bson.ObjectId `bson:"_id" json:"id"`
-	Keyword     string        `bson:"keyword" json:"keyword,omitempty"`
-	Pages       []mgo.DBRef   `bson:"pages" json:"pages,omitempty"`
-	CreatedAt   time.Time     `bson:"created_at" json:"created_at"`
-	UpdatedAt   time.Time     `bson:"updated_at" json:"updated_at"`
+	Id        bson.ObjectId `bson:"_id" json:"id"`
+	Keyword   string        `bson:"keyword" json:"keyword,omitempty"`
+	Pages     []mgo.DBRef   `bson:"pages" json:"pages,omitempty"`
+	CreatedAt time.Time     `bson:"created_at" json:"created_at"`
+	UpdatedAt time.Time     `bson:"updated_at" json:"updated_at"`
 }
 
 func init() {
@@ -33,25 +33,27 @@ func init() {
 	})
 }
 
-func (indexing *Indexing) Add(id bson.ObjectId) {
-	indexing.UpdatedAt = time.Now()
+func IndexingAdd(keyword string, id bson.ObjectId) {
+	i := Indexing{}
 	addCollectionLock.Lock()
-	n, err := IndexingCollection.Find(bson.M{"keyword": indexing.Keyword}).Count()
-	if err == nil && n > 0 {
+	err := IndexingCollection.Find(bson.M{"keyword": keyword}).One(&i)
+	if err == nil {
 		addCollectionLock.Unlock()
-		IndexingCollection.UpdateId(indexing.Id, bson.M{
-			"pages": bson.M{"$addToSet": mgo.DBRef{
-				Collection: PageCollection.Name,
-				Id:         id,
-			}},
+		IndexingCollection.UpdateId(i.Id, bson.M{
+			"pages": bson.M{
+				"$addToSet":  mgo.DBRef{Collection: PageCollection.Name, Id: id},
+				"updated_at": time.Now(),
+			},
 		})
 	} else {
-		indexing.Id = bson.NewObjectId()
-		indexing.Pages = []mgo.DBRef{
+		i.Id = bson.NewObjectId()
+		i.Keyword = keyword
+		i.Pages = []mgo.DBRef{
 			{Collection: PageCollection.Name, Id: id},
 		}
-		indexing.CreatedAt = indexing.UpdatedAt
-		IndexingCollection.Insert(indexing)
+		i.CreatedAt = time.Now()
+		i.UpdatedAt = i.CreatedAt
+		IndexingCollection.Insert(i)
 		addCollectionLock.Unlock()
 	}
 }
