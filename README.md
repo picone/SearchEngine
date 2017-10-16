@@ -8,10 +8,12 @@ MongoDB
 
 Redis
 
-## TODO List
+## 框架
 
--Redis中存放的待爬虫队列越来越多如何解决？
+- (Gin)[https://github.com/gin-gonic/gin]
 
--倒排索引不太正确，当只查找单个字的时候不能把涉及的单词也找出来
+- (MGO)[http://labix.org/mgo]
 
--索引插入锁所太久会误判死锁
+- (sego)[https://github.com/huichen/sego]
+
+- (Redigo)[https://github.com/garyburd/redigo]
