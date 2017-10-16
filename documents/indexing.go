@@ -2,17 +2,19 @@ package documents
 
 import (
 	"github.com/huichen/sego"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
-	"sync"
-	"time"
 	"github.com/picone/SearchEngine/utils/mongo"
 	mSegment "github.com/picone/SearchEngine/utils/segment"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
+	"log"
+	"sync"
+	"time"
 )
 
 var (
 	IndexingCollection *mgo.Collection
 	addCollectionLock  = sync.Mutex{}
+	indexingLock       = sync.Map{}
 )
 
 type Indexing struct {
@@ -34,14 +36,23 @@ func init() {
 }
 
 func IndexingAdd(keyword string, id bson.ObjectId) {
+	var l *sync.Mutex
 	i := Indexing{}
-	addCollectionLock.Lock()
+	if lock, ok := indexingLock.Load(keyword); ok {
+		l = lock.(*sync.Mutex)
+	} else {
+		l = &sync.Mutex{}
+		indexingLock.Store(keyword, l)
+	}
+	l.Lock()
 	err := IndexingCollection.Find(bson.M{"keyword": keyword}).One(&i)
 	if err == nil {
-		addCollectionLock.Unlock()
+		l.Unlock()
 		IndexingCollection.UpdateId(i.Id, bson.M{
-			"pages": bson.M{
-				"$addToSet":  mgo.DBRef{Collection: PageCollection.Name, Id: id},
+			"$addToSet": bson.M{
+				"pages": mgo.DBRef{Collection: PageCollection.Name, Id: id},
+			},
+			"$set": bson.M{
 				"updated_at": time.Now(),
 			},
 		})
@@ -54,7 +65,7 @@ func IndexingAdd(keyword string, id bson.ObjectId) {
 		i.CreatedAt = time.Now()
 		i.UpdatedAt = i.CreatedAt
 		IndexingCollection.Insert(i)
-		addCollectionLock.Unlock()
+		l.Unlock()
 	}
 }
 

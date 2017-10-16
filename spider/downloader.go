@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	FETCH_THREAD_NUMBER   = 1
+	FETCH_THREAD_NUMBER   = 16
 	RESULT_CHANNAL_NUMBER = 1024
 	JOB_SAVE_KEY          = "fetch_urls"
 )
