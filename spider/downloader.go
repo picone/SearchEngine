@@ -1,9 +1,9 @@
 package spider
 
 import (
-	"github.com/picone/SearchEngine/utils/redigo"
 	"errors"
 	"github.com/garyburd/redigo/redis"
+	"github.com/picone/SearchEngine/utils/redigo"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	FETCH_THREAD_NUMBER   = 16
+	FETCH_THREAD_NUMBER   = 1
 	RESULT_CHANNAL_NUMBER = 1024
 	JOB_SAVE_KEY          = "fetch_urls"
 )
@@ -20,13 +20,15 @@ const (
 type downloader struct {
 	Output               chan *Page
 	stopSignal           chan bool
+	analysisFinishSignal chan bool
 	analysisThreadNumber int64
 }
 
 func newDownloader() *downloader {
 	obj := downloader{
-		Output:     make(chan *Page, RESULT_CHANNAL_NUMBER),
-		stopSignal: make(chan bool),
+		Output:               make(chan *Page, RESULT_CHANNAL_NUMBER),
+		stopSignal:           make(chan bool),
+		analysisFinishSignal: make(chan bool),
 	}
 	return &obj
 }
@@ -34,18 +36,18 @@ func newDownloader() *downloader {
 func (downloader *downloader) AddUrl(url string) {
 	conn := redigo.GetConnection()
 	defer conn.Close()
-	conn.Send("LPUSH", JOB_SAVE_KEY, url)
+	conn.Send("SADD", JOB_SAVE_KEY, url)
 }
 
 func (downloader *downloader) Start() {
-	for i := 0; i < FETCH_THREAD_NUMBER; i++ {
-		go downloader.watchJobs()
-	}
 	if downloader.GetUrlCount() == 0 {
 		downloader.AddUrl("https://m.sohu.com/")
 		downloader.AddUrl("https://sina.cn/index/feed?from=touch")
 		downloader.AddUrl("http://3g.163.com/")
 		downloader.AddUrl("http://3g.china.com/")
+	}
+	for i := 0; i < FETCH_THREAD_NUMBER; i++ {
+		go downloader.watchJobs()
 	}
 }
 
@@ -69,14 +71,11 @@ LOOP:
 		case <-downloader.stopSignal:
 			break LOOP //收到停止信号退出循环
 		default:
-			if reply, err := redis.Values(conn.Do("BRPOP", JOB_SAVE_KEY, 10)); err == nil {
-				var queueName, url string
-				if _, err := redis.Scan(reply, &queueName, &url); err == nil {
-					if content, err := downloader.fetchContent(url); err == nil {
-						downloader.Output <- &Page{
-							Url:     url,
-							Content: content,
-						}
+			if url, err := redis.String(conn.Do("SPOP", JOB_SAVE_KEY)); err == nil {
+				if content, err := downloader.fetchContent(url); err == nil {
+					downloader.Output <- &Page{
+						Url:     url,
+						Content: content,
 					}
 				}
 			}
