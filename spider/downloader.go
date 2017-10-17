@@ -65,11 +65,11 @@ func (downloader *downloader) Stop() {
 func (downloader *downloader) watchJobs() {
 	conn := redigo.GetConnection()
 	defer conn.Close()
-LOOP:
+
 	for {
 		select {
 		case <-downloader.stopSignal:
-			break LOOP //收到停止信号退出循环
+			return //收到停止信号退出循环
 		default:
 			if url, err := redis.String(conn.Do("SPOP", JOB_SAVE_KEY)); err == nil {
 				if content, err := downloader.fetchContent(url); err == nil {
@@ -81,6 +81,7 @@ LOOP:
 			}
 		}
 	}
+
 }
 
 func (downloader *downloader) fetchContent(url string) (string, error) {
