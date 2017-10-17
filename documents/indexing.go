@@ -3,7 +3,6 @@ package documents
 import (
 	"sync"
 	"time"
-
 	"github.com/huichen/sego"
 	"github.com/picone/SearchEngine/utils/mongo"
 	mSegment "github.com/picone/SearchEngine/utils/segment"
@@ -13,7 +12,6 @@ import (
 
 var (
 	IndexingCollection *mgo.Collection
-	addCollectionLock  = sync.Mutex{}
 	indexingLock       = sync.Map{}
 )
 

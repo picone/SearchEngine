@@ -7,28 +7,27 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"sync/atomic"
 	"time"
 )
 
 const (
-	FETCH_THREAD_NUMBER   = 16
-	RESULT_CHANNAL_NUMBER = 1024
-	JOB_SAVE_KEY          = "fetch_urls"
+	FETCH_ROUTINE_NUMBER     = 16
+	ANALYSIS_ROUTINE_NUMBER = 64
+	RESULT_CHANNAL_NUMBER   = 1024
+	JOB_SAVE_KEY            = "fetch_urls"
 )
 
 type downloader struct {
-	Output               chan *Page
-	stopSignal           chan bool
-	analysisFinishSignal chan bool
-	analysisThreadNumber int64
+	Output             chan *Page
+	spiderStopSignal   chan bool
+	analysisStopSignal chan bool
 }
 
 func newDownloader() *downloader {
 	obj := downloader{
-		Output:               make(chan *Page, RESULT_CHANNAL_NUMBER),
-		stopSignal:           make(chan bool),
-		analysisFinishSignal: make(chan bool),
+		Output:             make(chan *Page, RESULT_CHANNAL_NUMBER),
+		spiderStopSignal:   make(chan bool),
+		analysisStopSignal: make(chan bool),
 	}
 	return &obj
 }
@@ -46,19 +45,19 @@ func (downloader *downloader) Start() {
 		downloader.AddUrl("http://3g.163.com/")
 		downloader.AddUrl("http://3g.china.com/")
 	}
-	for i := 0; i < FETCH_THREAD_NUMBER; i++ {
+	for i := 0; i < FETCH_ROUTINE_NUMBER; i++ {
 		go downloader.watchJobs()
 	}
 }
 
 func (downloader *downloader) Stop() {
 	//放入线程数量次的停止信号,等到无阻塞时说明爬虫线程都已经停止了
-	for i := 0; i < FETCH_THREAD_NUMBER; i++ {
-		downloader.stopSignal <- true
+	for i := 0; i < FETCH_ROUTINE_NUMBER; i++ {
+		downloader.spiderStopSignal <- true
 	}
-	log.Println("爬虫线程已停止,请等待分析器完成")
-	for downloader.analysisThreadNumber > 0 {
-
+	log.Println("爬虫例程已停止,请等待分析器完成")
+	for i := 0; i < ANALYSIS_ROUTINE_NUMBER; i++ {
+		downloader.analysisStopSignal <- true
 	}
 }
 
@@ -68,7 +67,7 @@ func (downloader *downloader) watchJobs() {
 LOOP:
 	for {
 		select {
-		case <-downloader.stopSignal:
+		case <-downloader.spiderStopSignal:
 			break LOOP //收到停止信号退出循环
 		default:
 			if url, err := redis.String(conn.Do("SPOP", JOB_SAVE_KEY)); err == nil {
@@ -108,16 +107,20 @@ func (downloader *downloader) fetchContent(url string) (string, error) {
 }
 
 func (downloader *downloader) Consume(callback func(*Page)) {
-	go downloader.consumeContent(callback)
+	for i := 0; i < ANALYSIS_ROUTINE_NUMBER; i++ {
+		go downloader.consumeContent(callback)
+	}
 }
 
 func (downloader *downloader) consumeContent(callback func(*Page)) {
+LOOP:
 	for content := range downloader.Output {
-		atomic.AddInt64(&downloader.analysisThreadNumber, 1)
-		go func() {
+		select {
+		case <-downloader.analysisStopSignal:
+			break LOOP
+		default:
 			callback(content)
-			atomic.AddInt64(&downloader.analysisThreadNumber, -1)
-		}()
+		}
 	}
 }
 
