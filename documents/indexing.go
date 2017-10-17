@@ -1,14 +1,14 @@
 package documents
 
 import (
+	"sync"
+	"time"
+
 	"github.com/huichen/sego"
 	"github.com/picone/SearchEngine/utils/mongo"
 	mSegment "github.com/picone/SearchEngine/utils/segment"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"log"
-	"sync"
-	"time"
 )
 
 var (
